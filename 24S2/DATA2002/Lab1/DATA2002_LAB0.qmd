@@ -1,0 +1,59 @@
+---
+title: "DATA2002_Lab0"
+date: "2024-07-30"
+author: "Hongzhang Liu"
+format: 
+  html: 
+    ### IMPORTANT ###
+    embed-resources: true # Creates a single HTML file as output
+    code-fold: show # Code folding; allows you to show/hide code chunks
+    ### USEFUL ###
+    code-tools: true # Includes a menu to download the code file
+    ### OPTIONAL ###
+    code-line-numbers: true # Line numbers in code chunks
+    df-print: paged # Sets how dataframes are automatically printed
+    theme: lux # Controls the font, colours, etc.
+table-of-contents: true # (Useful) Creates a table of contents!
+number-sections: true # (Optional) Puts numbers next to heading/subheadings
+---
+''
+# Load necessary libraries
+```{r}
+library("tidyverse")
+library("palmerpenguins")
+library("ggplot2")
+```
+# Data manipulation
+```{r tidy= TRUE, message= FALSE, warning= FALSE, results= 'hold'}
+penguins <- penguins_raw |> 
+  janitor::clean_names() |> 
+  mutate(species = stringr::word(species, start = 1, end = 1))
+```
+# Plot with facet wrap, colour by sex, and line of best fit
+```{r tidy= TRUE, message= FALSE, warning= FALSE, results= 'hold'}
+penguins_plot <- penguins |> 
+  ggplot(aes(x = culmen_length_mm, y = culmen_depth_mm, colour = sex)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~species + island) +
+  labs(x = "Culmen Length (mm)", y = "Culmen Depth (mm)", colour = "Sex")
+print(penguins_plot)
+```
+# Save the plot
+```{r tidy= TRUE, message= FALSE, warning= FALSE, results= 'hold'}
+ggsave(filename = "species_island_plot.png", plot = penguins_plot)
+```
+# Histogram for flipper length
+```{r tidy= TRUE, message= FALSE, warning= FALSE, results= 'hold'}
+flipper_histogram <- ggplot(penguins, aes(x = flipper_length_mm, fill = species)) +
+  geom_histogram(bins = 30, alpha = 0.7) +
+  labs(x = "Flipper Length (mm)", y = "Count", fill = "Species")
+print(flipper_histogram)
+```
+```{r tidy= TRUE, message= FALSE, warning= FALSE, results= 'hold'}
+ggsave(filename = "flipper_length_histogram.png", plot = flipper_histogram)
+```
+# Output data to a CSV file
+```{r tidy= TRUE, message= FALSE, warning= FALSE, results= 'hold'}
+write_csv(penguins, "penguins_data.csv")
+```
